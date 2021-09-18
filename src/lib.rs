@@ -291,6 +291,12 @@ mod test {
             env_logger::builder().is_test(true).try_init().ok();
             all_round_trip(&data, &event, &retry, &id, &comment);
         }
+        #[test]
+        fn parsing_no_panics(s in "([data|id|retry|event|[^\r\n:]]:[^\n\r]*\n)+\n") {
+            let mut p = Parser::new(&s);
+            let _ev = p.next_event().unwrap();
+            assert!(p.next_event().is_none());
+        }
     }
 
     fn data_only_round_trip(s: &str) {
