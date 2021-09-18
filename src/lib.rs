@@ -192,7 +192,7 @@ impl<'a> Parser<'a> {
                 return true;
             }
             false
-        } else{
+        } else {
             true
         }
     }
@@ -247,7 +247,8 @@ mod test {
             "retry:4000",
             "id: 1",
             "",
-            ].join("\n");
+        ]
+        .join("\n");
         let mut parser = Parser::new(&lines);
         let ev = parser.next_event().unwrap();
         assert_eq!(ev.data.unwrap(), "this is a data field");
