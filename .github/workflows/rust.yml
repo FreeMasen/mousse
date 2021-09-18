@@ -1,0 +1,26 @@
+name: Rust
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: fmt
+      run: cargo fmt -- --check
+    - name: rust-tarpaulin
+      uses: actions-rs/tarpaulin@v0.1.0
+      with:
+        args: --out xml
+    - name: Codecov
+      uses: codecov/codecov-action@v2.1.0
