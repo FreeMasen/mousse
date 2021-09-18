@@ -19,10 +19,8 @@ jobs:
     - name: fmt
       run: cargo fmt -- --check
     - name: rust-tarpaulin
-      uses: actions-rs/tarpaulin@v0.1.0
+      uses: actions-rs/tarpaulin@v0.1
       with:
         args: --out xml
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - name: Codecov
       uses: codecov/codecov-action@v2.1.0
