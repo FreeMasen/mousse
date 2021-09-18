@@ -78,6 +78,38 @@ impl<'a> std::fmt::Display for ServerSentEvent<'a> {
     }
 }
 
+impl<'a> ServerSentEvent<'a> {
+    pub fn cloned(&'a self) -> ServerSentEvent<'static> {
+        ServerSentEvent {
+            comment: self
+                .comment
+                .as_ref()
+                .map(|cow| Cow::Owned(String::from(cow.as_ref())))
+                .to_owned(),
+            event: self
+                .event
+                .as_ref()
+                .map(|cow| Cow::Owned(String::from(cow.as_ref())))
+                .to_owned(),
+            id: self
+                .id
+                .as_ref()
+                .map(|cow| Cow::Owned(String::from(cow.as_ref())))
+                .to_owned(),
+            data: self
+                .data
+                .as_ref()
+                .map(|cow| Cow::Owned(String::from(cow.as_ref())))
+                .to_owned(),
+            retry: self
+                .retry
+                .as_ref()
+                .map(|cow| Cow::Owned(String::from(cow.as_ref())))
+                .to_owned(),
+        }
+    }
+}
+
 pub struct Parser<'a> {
     orig: &'a str,
     chars: Peekable<Chars<'a>>,
