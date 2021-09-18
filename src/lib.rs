@@ -237,6 +237,26 @@ mod test {
         data_only_round_trip("");
     }
 
+    #[test]
+    fn with_unknown_field() {
+        let lines = vec![
+            "data:this is a data field",
+            "event:data-event",
+            ":i don't know why we have comments",
+            "unknown-field:this will get dropped, hopefully",
+            "retry:4000",
+            "id: 1",
+            "",
+            ].join("\n");
+        let mut parser = Parser::new(&lines);
+        let ev = parser.next_event().unwrap();
+        assert_eq!(ev.data.unwrap(), "this is a data field");
+        assert_eq!(ev.event.unwrap(), "data-event");
+        assert_eq!(ev.comment.unwrap(), "i don't know why we have comments");
+        assert_eq!(ev.retry.unwrap(), "4000");
+        assert_eq!(ev.id.unwrap(), " 1");
+    }
+
     proptest! {
         #[test]
         fn data_only_encoded_props(s in "[^\r\n]*") {
