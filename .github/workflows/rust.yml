@@ -35,12 +35,13 @@ jobs:
         geckodriver -b ./scripts/headless-firefox.sh &
         cargo test --test browser_client
         pkill geckodriver
-    - name: setup-chrome
-      uses: browser-actions/setup-chrome@latest
-    - name: setup-chromedrivr
-      uses: nanasess/setup-chromedriver@master
-    - name: run chromedriver test
-      run: |
-        DISPLAY=:99 chromedriver --url-base=/wd/hub --port=4444 &
-        cargo test --test browser_client
-        pkill chromedriver
+    # Disabled for the time being
+    # - name: setup-chrome
+    #   uses: browser-actions/setup-chrome@latest
+    # - name: setup-chromedrivr
+    #   uses: nanasess/setup-chromedriver@master
+    # - name: run chromedriver test
+    #   run: |
+    #     DISPLAY=:99 chromedriver --url-base=/wd/hub --port=4444 &
+    #     cargo test --test browser_client
+    #     pkill chromedriver
