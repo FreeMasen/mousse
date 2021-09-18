@@ -191,8 +191,10 @@ impl<'a> Parser<'a> {
                 self.next_char();
                 return true;
             }
+            false
+        } else{
+            true
         }
-        false
     }
 
     fn at_end(&mut self) -> bool {
