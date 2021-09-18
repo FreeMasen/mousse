@@ -272,9 +272,7 @@ mod test {
     }
 
     fn data_only_round_trip(s: &str) {
-        let ev = ServerSentEvent::builder()
-            .data(&s)
-            .build();
+        let ev = ServerSentEvent::builder().data(&s).build();
         let encoded = format!("{}", ev);
         let mut parser = Parser::new(&encoded);
         let ev2 = parser.next_event().unwrap();
@@ -283,10 +281,7 @@ mod test {
     }
 
     fn data_event_round_trip(data: &str, event: &str) {
-        let ev = ServerSentEvent::builder()
-            .data(data)
-            .event(event)
-            .build();
+        let ev = ServerSentEvent::builder().data(data).event(event).build();
         let encoded = format!("{}", ev);
         let mut parser = Parser::new(&encoded);
         let ev2 = parser.next_event().unwrap();
@@ -332,5 +327,4 @@ mod test {
         assert_eq!(parser.next_event(), None);
         assert_eq!(ev, ev2);
     }
-
 }
