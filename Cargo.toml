@@ -19,3 +19,4 @@ regex_generate = "0.2"
 rand = "0.7"
 futures = "0.3"
 tokio = { version = "1", features = ["full"] }
+fantoccini = "0.17"

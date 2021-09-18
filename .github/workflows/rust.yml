@@ -21,6 +21,18 @@ jobs:
     - name: rust-tarpaulin
       uses: actions-rs/tarpaulin@v0.1
       with:
-        args: --out xml
+        args: --lib
     - name: Codecov
       uses: codecov/codecov-action@v2.1.0
+    - name: run warp test
+      run: cargo test --test warp
+    - name: setup-firefox
+      uses: browser-actions/setup-firefox@latest
+    - name: setup-geckodriver
+      uses: browser-actions/setup-geckodriver@latest
+    - name: run gekodriver test
+      run: | 
+        geckodriver -b ./scripts/headless-firefox.sh &
+        cargo test --test browser_client
+        pkill geckodriver
+
