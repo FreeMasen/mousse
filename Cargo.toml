@@ -1,0 +1,16 @@
+[package]
+name = "mousse"
+version = "0.1.0"
+edition = "2018"
+authors = ["Robert Masen <r.f.masen@gmail.com>"]
+license = "MIT"
+description = "A set of encoder and decoder for server sent events"
+keywords = ["http", "sse", "server-sent", "events"]
+
+
+[dependencies]
+log = "0.4"
+
+[dev-dependencies]
+proptest = "1"
+env_logger = "0.9"
