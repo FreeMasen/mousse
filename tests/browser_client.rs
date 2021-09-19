@@ -81,7 +81,13 @@ async fn run_browser(c: &mut Client, port: u16) {
 async fn test_firefox_client() {
     env_logger::builder().is_test(true).try_init().ok();
     const PORT: u16 = 9995;
+    let mut caps = serde_json::Map::new();
+    caps.insert(
+        "moz:firefoxOptions".to_string(),
+        serde_json::json!({ "args": vec!["-headless"] }),
+    );
     let mut c = ClientBuilder::native()
+        .capabilities(caps)
         .connect("http://localhost:4444")
         .await
         .unwrap();

@@ -34,8 +34,8 @@ jobs:
       uses: browser-actions/setup-chrome@latest
     - name: setup-chromedriver
       uses: nanasess/setup-chromedriver@master
-    - name: run gekodriver test
+    - name: run webdriver test
       run: | 
-        geckodriver -b ./scripts/headless-firefox.sh &
+        geckodriver &
         chromedriver &
         cargo test --test browser_client
