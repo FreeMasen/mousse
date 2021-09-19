@@ -1,9 +1,9 @@
 use core::convert::Infallible;
-use fantoccini::{ClientBuilder, Locator};
+use fantoccini::{Client, ClientBuilder, Locator};
 use mousse::ServerSentEvent;
 use warp::{http::Response, hyper::Body, Filter};
-const PORT: u16 = 9995;
-async fn standup_server(rx: tokio::sync::oneshot::Receiver<()>) {
+
+async fn standup_server(rx: tokio::sync::oneshot::Receiver<()>, port: u16) {
     let dir = warp::fs::dir("tests/browser_client_assets");
     let sse = warp::path!("sse").and(warp::get()).and_then(|| async {
         let end = std::iter::once(Ok(format!(
@@ -39,20 +39,15 @@ async fn standup_server(rx: tokio::sync::oneshot::Receiver<()>) {
         )
     });
     let (_addr, server) = warp::serve(sse.or(dir).with(warp::log("chrome-client-test-server")))
-        .bind_with_graceful_shutdown(([127, 0, 0, 1], PORT), async {
+        .bind_with_graceful_shutdown(([127, 0, 0, 1], port), async {
             rx.await.ok();
         });
     tokio::task::spawn(server);
 }
 
-async fn run_browser() {
+async fn run_browser(c: &mut Client, port: u16) {
     let max_wait = std::time::Duration::from_secs(5);
-    let mut c = ClientBuilder::native()
-        .connect("http://localhost:4444")
-        .await
-        .expect("failed to connect to WebDriver");
-
-    c.goto(&format!("http://localhost:{}", PORT)).await.unwrap();
+    c.goto(&format!("http://localhost:{}", port)).await.unwrap();
     c.wait()
         .at_most(max_wait)
         .for_element(Locator::Css("#main"))
@@ -83,10 +78,35 @@ async fn run_browser() {
 }
 
 #[tokio::test]
-async fn test_browser_client() {
+async fn test_firefox_client() {
     env_logger::builder().is_test(true).try_init().ok();
+    const PORT: u16 = 9995;
+    let mut c = ClientBuilder::native()
+        .connect("http://localhost:4444")
+        .await
+        .unwrap();
     let (tx, rx) = tokio::sync::oneshot::channel();
-    standup_server(rx).await;
-    run_browser().await;
+    standup_server(rx, PORT).await;
+    run_browser(&mut c, PORT).await;
+    tx.send(()).unwrap();
+}
+
+#[tokio::test]
+async fn test_chrome_client() {
+    env_logger::builder().is_test(true).try_init().ok();
+    const PORT: u16 = 9994;
+    let mut caps = serde_json::Map::new();
+    caps.insert(
+        "goog:chromeOptions".to_string(),
+        serde_json::json!({ "args": vec!["--headless"] }),
+    );
+    let mut c = ClientBuilder::native()
+        .capabilities(caps)
+        .connect("http://localhost:9515")
+        .await
+        .unwrap();
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    standup_server(rx, PORT).await;
+    run_browser(&mut c, PORT).await;
     tx.send(()).unwrap();
 }

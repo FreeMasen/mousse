@@ -30,18 +30,12 @@ jobs:
       uses: browser-actions/setup-firefox@latest
     - name: setup-geckodriver
       uses: browser-actions/setup-geckodriver@latest
+    - name: setup-chrome
+      uses: browser-actions/setup-chrome@latest
+    - name: setup-chromedriver
+      uses: nanasess/setup-chromedriver@master
     - name: run gekodriver test
       run: | 
         geckodriver -b ./scripts/headless-firefox.sh &
+        chromedriver &
         cargo test --test browser_client
-        pkill geckodriver
-    # Disabled for the time being
-    # - name: setup-chrome
-    #   uses: browser-actions/setup-chrome@latest
-    # - name: setup-chromedrivr
-    #   uses: nanasess/setup-chromedriver@master
-    # - name: run chromedriver test
-    #   run: |
-    #     DISPLAY=:99 chromedriver --url-base=/wd/hub --port=4444 &
-    #     cargo test --test browser_client
-    #     pkill chromedriver

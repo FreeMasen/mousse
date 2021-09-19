@@ -22,3 +22,4 @@ futures = "0.3"
 tokio = { version = "1", features = ["full"] }
 fantoccini = "0.17"
 reqwest = { version = "0.11", features = ["stream"] }
+serde_json = "1"

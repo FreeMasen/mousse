@@ -733,6 +733,7 @@ dependencies = [
  "rand 0.7.3",
  "regex_generate",
  "reqwest",
+ "serde_json",
  "tokio",
  "warp",
 ]
