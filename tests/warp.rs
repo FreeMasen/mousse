@@ -8,7 +8,7 @@ async fn parse_warp_stream() {
     const CT: u8 = 255;
     let filter = sse_filter();
     let res = warp::test::request()
-        .path(&format!("/{}", CT))
+        .path(&format!("/sse/{}", CT))
         .reply(&filter)
         .await;
     let body = str::from_utf8(res.body()).unwrap();
