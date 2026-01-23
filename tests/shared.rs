@@ -22,6 +22,6 @@ pub fn sse(ct: u8) -> impl Stream<Item = Result<Event, Infallible>> {
 }
 
 pub fn sse_filter() -> impl Filter<Extract = (impl Reply,), Error = Rejection> {
-    warp::path!(u8)
+    warp::path!("sse" / u8)
         .map(|ct: u8| warp::sse::reply(warp::sse::keep_alive().stream(sse(ct))).into_response())
 }

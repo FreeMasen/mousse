@@ -8,7 +8,8 @@ async fn standup_server(rx: tokio::sync::oneshot::Receiver<()>, port: u16) {
     let server = warp::serve(
         sse_filter()
             .or(warp::fs::dir("tests/browser_client_assets"))
-            .boxed(),
+            .boxed()
+            .with(warp::log("test-sse-server")),
     )
     .bind(([127, 0, 0, 1], port))
     .await

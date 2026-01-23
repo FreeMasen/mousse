@@ -32,6 +32,6 @@ jobs:
       uses: nanasess/setup-chromedriver@master
     - name: run webdriver test
       run: | 
-        geckodriver &
-        chromedriver &
+        geckodriver --port=4444 &
+        chromedriver --port=9515 &
         cargo test --test browser_client
