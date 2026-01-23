@@ -1,48 +1,23 @@
-use core::convert::Infallible;
 use fantoccini::{Client, ClientBuilder, Locator};
-use mousse::ServerSentEvent;
-use warp::{http::Response, hyper::Body, Filter};
+use warp::Filter;
+
+mod shared;
+use shared::*;
 
 async fn standup_server(rx: tokio::sync::oneshot::Receiver<()>, port: u16) {
-    let dir = warp::fs::dir("tests/browser_client_assets");
-    let sse = warp::path!("sse").and(warp::get()).and_then(|| async {
-        let end = std::iter::once(Ok(format!(
-            "{}",
-            ServerSentEvent::builder().event("close").build()
-        )
-        .as_bytes()
-        .to_vec()));
-        let stream = futures::stream::iter(
-            (0..255)
-                .map(|id| {
-                    Result::<_, Infallible>::Ok(
-                        format!(
-                            "{}",
-                            ServerSentEvent::builder()
-                                .data("this is some data")
-                                .id(&id.to_string())
-                                .build()
-                        )
-                        .as_bytes()
-                        .to_vec(),
-                    )
-                })
-                .chain(end),
-        );
-        let body = Body::wrap_stream(stream);
-        Result::<_, Infallible>::Ok(
-            Response::builder()
-                .header("content-type", "text/event-stream")
-                .header("cache-control", "no-cache")
-                .body(body)
-                .unwrap(),
-        )
+    let server = warp::serve(
+        sse_filter()
+            .or(warp::fs::dir("tests/browser_client_assets"))
+            .boxed()
+            .with(warp::log("test-sse-server")),
+    )
+    .bind(([127, 0, 0, 1], port))
+    .await
+    .graceful(async move {
+        rx.await.ok();
     });
-    let (_addr, server) = warp::serve(sse.or(dir).with(warp::log("chrome-client-test-server")))
-        .bind_with_graceful_shutdown(([127, 0, 0, 1], port), async {
-            rx.await.ok();
-        });
-    tokio::task::spawn(server);
+
+    tokio::task::spawn(server.run());
 }
 
 async fn run_browser(c: &mut Client, port: u16) {
@@ -74,13 +49,14 @@ async fn run_browser(c: &mut Client, port: u16) {
             })
             .unwrap();
     }
-    c.close().await.unwrap();
 }
 
 #[tokio::test]
 async fn test_firefox_client() {
     env_logger::builder().is_test(true).try_init().ok();
     const PORT: u16 = 9995;
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    standup_server(rx, PORT).await;
     let mut caps = serde_json::Map::new();
     caps.insert(
         "moz:firefoxOptions".to_string(),
@@ -91,9 +67,9 @@ async fn test_firefox_client() {
         .connect("http://localhost:4444")
         .await
         .unwrap();
-    let (tx, rx) = tokio::sync::oneshot::channel();
-    standup_server(rx, PORT).await;
+
     run_browser(&mut c, PORT).await;
+    c.close().await.unwrap();
     tx.send(()).unwrap();
 }
 
@@ -114,5 +90,6 @@ async fn test_chrome_client() {
     let (tx, rx) = tokio::sync::oneshot::channel();
     standup_server(rx, PORT).await;
     run_browser(&mut c, PORT).await;
+    c.close().await.unwrap();
     tx.send(()).unwrap();
 }

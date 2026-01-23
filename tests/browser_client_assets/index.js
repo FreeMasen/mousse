@@ -3,7 +3,7 @@
     console.log('starting sse test');
     let main = document.getElementById('main');
     let list;
-    let sse = new EventSource("/sse");
+    let sse = new EventSource("/sse/255");
     let msg_ct = 0;
     sse.onopen = function (...args) {
         console.log('open', args);
@@ -23,6 +23,6 @@
         msg_ct += 1;
     }
     sse.onerror = function (err) {
-        console.error('error', err.toString());
+        console.error('error', err);
     }
 })()
