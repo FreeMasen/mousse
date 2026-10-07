@@ -1,6 +1,6 @@
 use core::convert::Infallible;
 use futures::Stream;
-use rand::Rng;
+use rand::RngExt;
 use regex_generate::DEFAULT_MAX_REPEAT;
 use std::iter::FromIterator;
 use warp::{sse::Event, Filter, Rejection, Reply};
